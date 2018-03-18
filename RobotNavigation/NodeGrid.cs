@@ -15,6 +15,9 @@ namespace RobotNavigation
         public Vector2 Pos { get => _pos; }
         public int TileSize { get => _tileSize; }
 
+        public Node startNode;
+        public Node targetNode;
+
         // <summary>
         /// The width of the grid.
         /// -1 so the absolute edge doesn't register next cell and out of bounds.

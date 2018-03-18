@@ -20,19 +20,19 @@ namespace RobotNavigation
 
             using (StreamReader reader = new StreamReader(File.Open(filePath, FileMode.Open)))
             {
-                grid = SetupGridDimensions(reader.ReadLine());
-                var startNode = reader.ReadLine();
-                var targetNode = reader.ReadLine();
+                grid = ReadGridDimensions(reader.ReadLine());
+                grid.startNode = ReadNode(reader.ReadLine(), grid);
+                grid.targetNode = ReadNode(reader.ReadLine(), grid);
 
                 while (!reader.EndOfStream)
-                    LoadWall(reader.ReadLine(), grid);
+                    ReadWall(reader.ReadLine(), grid);
             }
 
             return grid;
         }
 
-        // Extracts the cols and rows from the line in format [rows, cols]
-        private static NodeGrid SetupGridDimensions(string input)
+        // Extracts the cols and rows from the line in format [rows,cols]
+        private static NodeGrid ReadGridDimensions(string input)
         {
             // Strip square braces
             input = input.Replace("[", "");
@@ -55,8 +55,24 @@ namespace RobotNavigation
             return new NodeGrid(new Vector2(5, 5), cols, rows, tileSize);
         }
 
+        // Extracts the node index in format (col,row) and returns the node at that index
+        private static Node ReadNode(string input, NodeGrid grid)
+        {
+            // Strip brackets
+            input = input.Replace("(", "");
+            input = input.Replace(")", "");
+
+            // Separate into two numbers, rows and cols
+            int commaIndex = input.IndexOf(",");
+
+            int cols = Convert.ToInt32(input.Substring(0, commaIndex));
+            int rows = Convert.ToInt32(input.Substring(commaIndex + 1));
+
+            return grid[cols, rows];
+        }
+
         // Extracts the wall data in format (startCol, startRow, width, height) and sets corresponding nodes to wall.
-        private static void LoadWall(string input, NodeGrid grid)
+        private static void ReadWall(string input, NodeGrid grid)
         {
             // Strip brackets
             input = input.Replace("(", "");

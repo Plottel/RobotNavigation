@@ -16,9 +16,6 @@ namespace RobotNavigation
         SpriteBatch spriteBatch;
         NodeGrid grid;
 
-        const int MAX_GRID_WIDTH = 800;
-        const int MAX_GRID_HEIGHT = 700;
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -106,6 +103,10 @@ namespace RobotNavigation
 
                 spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
             }
+
+            // Render Start and Target Nodes
+            spriteBatch.FillRectangle(grid.startNode.Bounds, Color.Red);
+            spriteBatch.FillRectangle(grid.targetNode.Bounds, new Color(0, 255, 0));
 
             // Render horizontal Row lines;
             for (int i = 0; i < grid.Rows; ++i)
