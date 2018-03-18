@@ -16,7 +16,7 @@ namespace RobotNavigation
         {
             using (var game = new Game1())
             {
-                game.LoadGrid(args[0]);
+                game.LoadGrid("grid.txt");
                 game.Run();
             }
         }

@@ -76,35 +76,8 @@ namespace RobotNavigation
 
         public void LoadGrid(string filePath)
         {
-            using (StreamReader reader = new StreamReader(File.Open(filePath, FileMode.Open)))
-            {
-                LoadGridDimensions(reader.ReadLine());
-            }
-        }
-
-        // Extracts the cols and rows from the line in format [rows, cols]
-        private void LoadGridDimensions(string input)
-        {
-            // Strip square braces
-            input = input.Replace("[", "");
-            input = input.Replace("]", "");
-
-            // Separate into two numbers, rows and cols
-            int commaIndex = input.IndexOf(",");
-
-            int rows = Convert.ToInt32(input.Substring(0, commaIndex));
-            int cols = Convert.ToInt32(input.Substring(commaIndex + 1));
-
-            // Determine appropriate TileSize
-            int tileWidth = MAX_GRID_WIDTH / cols;
-            int tileHeight = MAX_GRID_HEIGHT / rows;
-
-            // Make TileSize square
-            int tileSize = Math.Min(tileWidth, tileHeight);
-
-            // Create Grid
-            grid = new NodeGrid(new Vector2(5, 5), cols, rows, tileSize);
-        }
+            grid = GridParser.LoadGridFrom(filePath);           
+        }        
 
         // Renders the nodes and then renders grid lines on top.
         private void RenderGrid()
