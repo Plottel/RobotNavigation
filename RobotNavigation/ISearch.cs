@@ -10,7 +10,7 @@ namespace RobotNavigation
     {
         List<Node> Path { get; set; }
 
-        void Search(NodeGrid grid);
+        Queue<SearchSnapshot> Search(NodeGrid grid);
 
     }
 }

@@ -16,8 +16,10 @@ namespace RobotNavigation
             Path = new List<Node>();
         }
 
-        public void Search(NodeGrid grid)
+        public Queue<SearchSnapshot> Search(NodeGrid grid)
         {
+            var snapshots = new Queue<SearchSnapshot>();
+
             var parents = new Dictionary<Node, Node>();
             var open = new Stack<Node>();
             var closed = new List<Node>();
@@ -29,6 +31,14 @@ namespace RobotNavigation
             while (open.Count > 0)
             {
                 current = open.Pop();
+
+                // Create new SearchSnapshot
+                var snapshot = new SearchSnapshot();
+                snapshot.grid = grid;
+                snapshot.openIndexes = SearchUtils.NodesToNodeIndexes(open, grid);
+                snapshot.closedIndexes = SearchUtils.NodesToNodeIndexes(closed, grid);
+                snapshot.pathIndexes = SearchUtils.NodesToNodeIndexes(SearchUtils.RetracePath(current, parents), grid);
+                snapshots.Enqueue(snapshot);
 
                 if (current == grid.targetNode)
                     break;
@@ -46,20 +56,9 @@ namespace RobotNavigation
                 }
             }
 
-            // Retrace the path
-            var path = new List<Node>();
+            Path = SearchUtils.RetracePath(current, parents);
 
-            // Until we reach the source node...
-            while (parents.ContainsKey(current))
-            {
-                path.Add(current);
-                current = parents[current];
-            }
-
-            path.Add(grid.startNode);
-            path.Reverse();
-
-            Path = path;
-        }
+            return snapshots;
+        }        
     }
 }

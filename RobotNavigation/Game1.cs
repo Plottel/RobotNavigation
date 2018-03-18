@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using System.IO;
 using System;
+using System.Collections.Generic;
 
 namespace RobotNavigation
 {
@@ -16,6 +17,7 @@ namespace RobotNavigation
         SpriteBatch spriteBatch;
         NodeGrid grid;
         ISearch search;
+        Queue<SearchSnapshot> snapshots = new Queue<SearchSnapshot>();
 
 
         public Game1()
@@ -57,7 +59,7 @@ namespace RobotNavigation
 
             if (Input.KeyTyped(Keys.Space))
             {
-                search.Search(grid);
+                snapshots = search.Search(grid);
             }
 
             base.Update(gameTime);
@@ -70,15 +72,24 @@ namespace RobotNavigation
             spriteBatch.Begin();
 
             {
-                RenderGrid();
-                RenderPath();
+                if (snapshots.Count > 1)
+                {
+                    snapshots.Dequeue().Render(spriteBatch);
+                    System.Threading.Thread.Sleep(200);
+                }
+                else if (snapshots.Count == 1) // Leave the final snapshot visible on screen
+                {
+                    snapshots.Peek().Render(spriteBatch);
+                }
 
                 // Render Start and Target Nodes
                 spriteBatch.FillRectangle(grid.startNode.Bounds, Color.Red);
                 spriteBatch.FillRectangle(grid.targetNode.Bounds, new Color(0, 255, 0));
 
+                RenderGrid();
             }
             
+
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -101,11 +112,7 @@ namespace RobotNavigation
             foreach (var node in grid)
             {
                 if (node.isWall)
-                    nodeColor = Color.Black;
-                else
-                    nodeColor = Color.LightSlateGray;
-
-                spriteBatch.FillRectangle(node.Bounds, nodeColor);
+                    spriteBatch.FillRectangle(node.Bounds, Color.Black);
             }
 
             // For grid line rendering.
@@ -113,7 +120,7 @@ namespace RobotNavigation
             Vector2 lineEnd;
 
             // Render vertical Column lines.
-            for (int i = 0; i < grid.Cols; ++i)
+            for (int i = 0; i <= grid.Cols; ++i)
             {
                 lineStart = grid.Pos + new Vector2(grid.TileSize * i, 0);
                 lineEnd = lineStart + new Vector2(0, grid.Height);
@@ -122,36 +129,13 @@ namespace RobotNavigation
             }
 
             // Render horizontal Row lines;
-            for (int i = 0; i < grid.Rows; ++i)
+            for (int i = 0; i <= grid.Rows; ++i)
             {
                 lineStart = grid.Pos + new Vector2(0, grid.TileSize * i);
                 lineEnd = lineStart + new Vector2(grid.Width, 0);
 
                 spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
             }            
-        }
-
-        private void RenderPath()
-        {
-            if (search.Path.Count < 2)
-                return;
-
-            // Render Path
-            var path = search.Path;
-            for (int i = 0; i < search.Path.Count - 1; ++i)
-            {
-                // Render line between two center points
-                Vector2 start = path[i].Bounds.Center.ToVector2();
-                Vector2 end = path[i + 1].Bounds.Center.ToVector2();
-
-                spriteBatch.DrawLine(start, end, Color.Yellow, 2);
-            }
-
-            // Render final node in Path
-            spriteBatch.DrawLine(path[path.Count - 2].Bounds.Center.ToVector2(),
-                                path[path.Count - 1].Bounds.Center.ToVector2(),
-                                Color.Yellow,
-                                2);
         }
     }
 }
