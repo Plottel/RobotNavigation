@@ -47,6 +47,8 @@ namespace RobotNavigation
             _tileSize = tileSize;
             AddColumns(cols);
             AddRows(rows);
+
+            SetupNeighbours();
         }
 
         public Node NodeAt(Vector2 pos)
@@ -148,6 +150,12 @@ namespace RobotNavigation
                 // Increment the number of rows in the grid.
                 ++Rows;
             }
+        }
+
+        private void SetupNeighbours()
+        {
+            foreach (var node in this)
+                node.neighbours = GetOrthogonalNeighbours(node);
         }
 
         private void AddNodeIfNotNull(Node node, ICollection<Node> list)

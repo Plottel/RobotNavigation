@@ -12,6 +12,7 @@ namespace RobotNavigation
         public Vector2 pos;
         public Vector2 size;
         public bool isWall;
+        public List<Node> neighbours;
 
         public Rectangle Bounds
         {
