@@ -101,7 +101,7 @@ namespace RobotNavigation
 
             //string searchType = args[1];
 
-            search = new DepthFirstSearch();
+            search = new BreadthFirstSearch();
         }        
 
         // Renders the nodes and then renders grid lines on top.
