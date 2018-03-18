@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
+using System.IO;
+using System;
 
 namespace RobotNavigation
 {
@@ -11,52 +14,41 @@ namespace RobotNavigation
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        NodeGrid grid;
+
+        const int MAX_GRID_WIDTH = 800;
+        const int MAX_GRID_HEIGHT = 700;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
+
+            // Restrict mouse to stay within the window.
+            Input.SetMaxMouseX(graphics.PreferredBackBufferWidth);
+            Input.SetMaxMouseY(graphics.PreferredBackBufferHeight);
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            IsMouseVisible = true;
+            Mouse.WindowHandle = Window.Handle;
 
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -67,17 +59,89 @@ namespace RobotNavigation
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DimGray);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            {
+                RenderGrid();
+            }
+            
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void LoadGrid(string filePath)
+        {
+            using (StreamReader reader = new StreamReader(File.Open(filePath, FileMode.Open)))
+            {
+                LoadGridDimensions(reader.ReadLine());
+            }
+        }
+
+        // Extracts the cols and rows from the line in format [rows, cols]
+        private void LoadGridDimensions(string input)
+        {
+            // Strip square braces
+            input = input.Replace("[", "");
+            input = input.Replace("]", "");
+
+            // Separate into two numbers, rows and cols
+            int commaIndex = input.IndexOf(",");
+
+            int rows = Convert.ToInt32(input.Substring(0, commaIndex));
+            int cols = Convert.ToInt32(input.Substring(commaIndex + 1));
+
+            // Determine appropriate TileSize
+            int tileWidth = MAX_GRID_WIDTH / cols;
+            int tileHeight = MAX_GRID_HEIGHT / rows;
+
+            // Make TileSize square
+            int tileSize = Math.Min(tileWidth, tileHeight);
+
+            // Create Grid
+            grid = new NodeGrid(new Vector2(5, 5), cols, rows, tileSize);
+        }
+
+        // Renders the nodes and then renders grid lines on top.
+        private void RenderGrid()
+        {
+            // Render nodes.
+            Color nodeColor;
+            foreach (var node in grid)
+            {
+                if (node.isWall)
+                    nodeColor = Color.Black;
+                else
+                    nodeColor = Color.LightSlateGray;
+
+                spriteBatch.FillRectangle(node.Bounds, nodeColor);
+            }
+
+            // For grid line rendering.
+            Vector2 lineStart;
+            Vector2 lineEnd;
+
+            // Render vertical Column lines.
+            for (int i = 0; i < grid.Cols; ++i)
+            {
+                lineStart = grid.Pos + new Vector2(grid.TileSize * i, 0);
+                lineEnd = lineStart + new Vector2(0, grid.Height);
+
+                spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
+            }
+
+            // Render horizontal Row lines;
+            for (int i = 0; i < grid.Rows; ++i)
+            {
+                lineStart = grid.Pos + new Vector2(0, grid.TileSize * i);
+                lineEnd = lineStart + new Vector2(grid.Width, 0);
+
+                spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
+            }            
         }
     }
 }
