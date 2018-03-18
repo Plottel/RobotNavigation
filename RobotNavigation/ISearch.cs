@@ -8,9 +8,7 @@ namespace RobotNavigation
 {
     public interface ISearch
     {
-        List<Node> Open { get; }
-        List<Node> Closed { get; }
-        List<Node> Path { get; }
+        List<Node> Path { get; set; }
 
         void Search(NodeGrid grid);
 

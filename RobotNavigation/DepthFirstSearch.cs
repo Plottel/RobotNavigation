@@ -9,26 +9,57 @@ namespace RobotNavigation
 {
     public class DepthFirstSearch : ISearch
     {
+        public List<Node> Path { get; set; }
+
+        public DepthFirstSearch()
+        {
+            Path = new List<Node>();
+        }
+
         public void Search(NodeGrid grid)
         {
-            //      DFS(G, v)(v is the vertex where the search starts)
-            //   Stack S := { }; (start with an empty stack )
-            //   for each vertex u, set visited[u] := false;
-            //      push S, v;
-            //      while (S is not empty) do
-            //          u:= pop S;
-            //      if (not visited[u]) then
-            //         visited[u] := true;
-            //      for each unvisited neighbour w of u
-            //         push S, w;
-            //      end if
-            //   end while
-            //END DFS()
-
+            var parents = new Dictionary<Node, Node>();
             var open = new Stack<Node>();
+            var closed = new List<Node>();
+            Node current = null;
 
+            open.Push(grid.startNode);
 
+            // Search
+            while (open.Count > 0)
+            {
+                current = open.Pop();
 
+                if (current == grid.targetNode)
+                    break;
+
+                if (!closed.Contains(current))
+                    closed.Add(current);
+
+                foreach (var neighbour in current.neighbours)
+                {
+                    if (!closed.Contains(neighbour) && !neighbour.isWall)
+                    {
+                        open.Push(neighbour);
+                        parents[neighbour] = current;
+                    }
+                }
+            }
+
+            // Retrace the path
+            var path = new List<Node>();
+
+            // Until we reach the source node...
+            while (parents.ContainsKey(current))
+            {
+                path.Add(current);
+                current = parents[current];
+            }
+
+            path.Add(grid.startNode);
+            path.Reverse();
+
+            Path = path;
         }
     }
 }

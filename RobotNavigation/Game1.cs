@@ -15,6 +15,8 @@ namespace RobotNavigation
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         NodeGrid grid;
+        ISearch search;
+
 
         public Game1()
         {
@@ -51,7 +53,12 @@ namespace RobotNavigation
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            Input.UpdateStates();
+
+            if (Input.KeyTyped(Keys.Space))
+            {
+                search.Search(grid);
+            }
 
             base.Update(gameTime);
         }
@@ -64,6 +71,12 @@ namespace RobotNavigation
 
             {
                 RenderGrid();
+                RenderPath();
+
+                // Render Start and Target Nodes
+                spriteBatch.FillRectangle(grid.startNode.Bounds, Color.Red);
+                spriteBatch.FillRectangle(grid.targetNode.Bounds, new Color(0, 255, 0));
+
             }
             
             spriteBatch.End();
@@ -71,9 +84,13 @@ namespace RobotNavigation
             base.Draw(gameTime);
         }
 
-        public void LoadGrid(string filePath)
+        public void Setup(string[] args)
         {
-            grid = GridParser.LoadGridFrom(filePath);           
+            grid = GridParser.LoadGridFrom(args[0]);
+
+            //string searchType = args[1];
+
+            search = new DepthFirstSearch();
         }        
 
         // Renders the nodes and then renders grid lines on top.
@@ -104,10 +121,6 @@ namespace RobotNavigation
                 spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
             }
 
-            // Render Start and Target Nodes
-            spriteBatch.FillRectangle(grid.startNode.Bounds, Color.Red);
-            spriteBatch.FillRectangle(grid.targetNode.Bounds, new Color(0, 255, 0));
-
             // Render horizontal Row lines;
             for (int i = 0; i < grid.Rows; ++i)
             {
@@ -116,6 +129,29 @@ namespace RobotNavigation
 
                 spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
             }            
+        }
+
+        private void RenderPath()
+        {
+            if (search.Path.Count < 2)
+                return;
+
+            // Render Path
+            var path = search.Path;
+            for (int i = 0; i < search.Path.Count - 1; ++i)
+            {
+                // Render line between two center points
+                Vector2 start = path[i].Bounds.Center.ToVector2();
+                Vector2 end = path[i + 1].Bounds.Center.ToVector2();
+
+                spriteBatch.DrawLine(start, end, Color.Yellow, 2);
+            }
+
+            // Render final node in Path
+            spriteBatch.DrawLine(path[path.Count - 2].Bounds.Center.ToVector2(),
+                                path[path.Count - 1].Bounds.Center.ToVector2(),
+                                Color.Yellow,
+                                2);
         }
     }
 }
