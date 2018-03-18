@@ -33,12 +33,7 @@ namespace RobotNavigation
                 current = open.Pop();
 
                 // Create new SearchSnapshot
-                var snapshot = new SearchSnapshot();
-                snapshot.grid = grid;
-                snapshot.openIndexes = SearchUtils.NodesToNodeIndexes(open, grid);
-                snapshot.closedIndexes = SearchUtils.NodesToNodeIndexes(closed, grid);
-                snapshot.pathIndexes = SearchUtils.NodesToNodeIndexes(SearchUtils.RetracePath(current, parents), grid);
-                snapshots.Enqueue(snapshot);
+                snapshots.Enqueue(SearchUtils.MakeSnapshot(grid, current, open, closed, parents));
 
                 if (current == grid.targetNode)
                     break;

@@ -35,5 +35,20 @@ namespace RobotNavigation
 
             return result;
         }
+
+        public static SearchSnapshot MakeSnapshot(NodeGrid grid, 
+                                                Node current, 
+                                                IEnumerable<Node> open, 
+                                                IEnumerable<Node> closed, 
+                                                Dictionary<Node, Node> parents)
+        {
+            var snapshot = new SearchSnapshot();
+            snapshot.grid = grid;
+            snapshot.openIndexes = NodesToNodeIndexes(open, grid);
+            snapshot.closedIndexes = NodesToNodeIndexes(closed, grid);
+            snapshot.pathIndexes = NodesToNodeIndexes(RetracePath(current, parents), grid);
+
+            return snapshot;
+        }
     }
 }
