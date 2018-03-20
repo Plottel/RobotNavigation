@@ -43,7 +43,7 @@ namespace RobotNavigation
 
                 foreach (var neighbour in current.neighbours)
                 {
-                    if (!closed.Contains(neighbour) && !neighbour.isWall)
+                    if (!closed.Contains(neighbour) && !open.Contains(neighbour) && !neighbour.isWall)
                     {
                         open.Push(neighbour);
                         parents[neighbour] = current;
