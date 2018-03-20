@@ -16,7 +16,7 @@ namespace RobotNavigation
         {
             using (var game = new Game1())
             {
-                game.Setup(new string[] { "grid.txt" });
+                game.Setup(args);
                 //game.Setup(args);
                 game.Run();
             }

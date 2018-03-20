@@ -99,9 +99,12 @@ namespace RobotNavigation
         {
             grid = GridParser.LoadGridFrom(args[0]);
 
-            //string searchType = args[1];
+            string searchType = args[1].ToLower();
 
-            search = new DepthFirstSearch();
+            if (searchType == "dfs")
+                search = new DepthFirstSearch();
+            else if (searchType == "bfs")
+                search = new BreadthFirstSearch();
         }        
 
         // Renders the nodes and then renders grid lines on top.
