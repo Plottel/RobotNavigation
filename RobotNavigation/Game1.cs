@@ -19,6 +19,7 @@ namespace RobotNavigation
         ISearch search;
         Queue<SearchSnapshot> snapshots = new Queue<SearchSnapshot>();
         SpriteFont font;
+        SpriteFont smallFont;
 
 
         public Game1()
@@ -46,6 +47,7 @@ namespace RobotNavigation
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = Content.Load<SpriteFont>("font");
+            smallFont = Content.Load<SpriteFont>("smallFont");
         }
 
         protected override void UnloadContent()
@@ -112,7 +114,6 @@ namespace RobotNavigation
         private void RenderGrid()
         {
             // Render nodes.
-            Color nodeColor;
             foreach (var node in grid)
             {
                 if (node.isWall)
@@ -155,6 +156,32 @@ namespace RobotNavigation
             spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 150), clr);
 
             spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 210), clr);
+            RenderPathResults(start + new Vector2(0, 240), clr);
+            
+        }
+
+        private void RenderPathResults(Vector2 start, Color clr)
+        {
+            const float MAX_LINE_WIDTH = 250;
+            float lineWidth = 0;
+            float lineHeight = smallFont.MeasureString("X").Y;
+
+            if (snapshots.Count == 0)
+                return;
+
+            foreach (string move in snapshots.Peek().pathDirections)
+            {
+                string formattedMove = move + ", ";
+                lineWidth += smallFont.MeasureString(formattedMove).X + 20;
+
+                if (lineWidth > MAX_LINE_WIDTH)
+                {
+                    start.Y += lineHeight;
+                    lineWidth = 0;
+                }
+
+                spriteBatch.DrawString(smallFont, formattedMove, start + new Vector2(lineWidth, 0), clr);
+            }
         }
     }
 }

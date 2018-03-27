@@ -47,8 +47,31 @@ namespace RobotNavigation
             snapshot.openIndexes = NodesToNodeIndexes(open, grid);
             snapshot.closedIndexes = NodesToNodeIndexes(closed, grid);
             snapshot.pathIndexes = NodesToNodeIndexes(RetracePath(current, parents), grid);
+            snapshot.pathDirections = PathIndexesToPathDirections(snapshot.pathIndexes);
 
             return snapshot;
+        }
+
+        private static List<string> PathIndexesToPathDirections(List<Point> pathIndexes)
+        {
+            var result = new List<string>();
+
+            for (int i = 1; i < pathIndexes.Count; ++i)
+                result.Add(NodeIndexesToMoveDirection(pathIndexes[i - 1], pathIndexes[i]));
+
+            return result;
+        }
+
+        private static string NodeIndexesToMoveDirection(Point from, Point to)
+        {
+            // Only orthogonal movement allowed, don't need to worry about 8 directions
+            if (from.Col() < to.Col())
+                return "RIGHT";
+            else if (from.Col() > to.Col())
+                return "LEFT";
+            else if (from.Row() < to.Row())
+                return "DOWN";
+            return "UP";
         }
     }
 }

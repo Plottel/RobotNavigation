@@ -15,6 +15,7 @@ namespace RobotNavigation
         public List<Point> openIndexes;
         public List<Point> closedIndexes;
         public List<Point> pathIndexes;
+        public List<string> pathDirections;
 
         public void Render(SpriteBatch spriteBatch)
         {
