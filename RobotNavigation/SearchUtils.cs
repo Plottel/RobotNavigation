@@ -21,6 +21,7 @@ namespace RobotNavigation
                 current = parents[current];
             }
 
+            path.Add(current);
             path.Reverse();
 
             return path;

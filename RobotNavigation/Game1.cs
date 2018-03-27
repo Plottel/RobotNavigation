@@ -21,7 +21,6 @@ namespace RobotNavigation
         SpriteFont font;
         SpriteFont smallFont;
 
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -65,6 +64,8 @@ namespace RobotNavigation
                 search = new DepthFirstSearch();
             if (Input.KeyTyped(Keys.D2))
                 search = new BreadthFirstSearch();
+            if (Input.KeyTyped(Keys.D3))
+                search = new GreedyBestFirstSearch();
 
             if (Input.KeyTyped(Keys.Space))
                 snapshots = search.Search(grid);
@@ -152,8 +153,9 @@ namespace RobotNavigation
             spriteBatch.DrawString(font, "  Space - Run Search", start + new Vector2(0, 30), clr);
             spriteBatch.DrawString(font, "  1 - Depth First Search", start + new Vector2(0, 60), clr);
             spriteBatch.DrawString(font, "  2 - Breadth First Search", start + new Vector2(0, 90), clr);
+            spriteBatch.DrawString(font, "  3 - Greedy Best First Search", start + new Vector2(0, 120), clr);
 
-            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 150), clr);
+            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 180), clr);
 
             spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 210), clr);
             RenderPathResults(start + new Vector2(0, 240), clr);
@@ -162,9 +164,9 @@ namespace RobotNavigation
 
         private void RenderPathResults(Vector2 start, Color clr)
         {
-            const float MAX_LINE_WIDTH = 250;
+            const float MAX_LINE_WIDTH = 240;
             float lineWidth = 0;
-            float lineHeight = smallFont.MeasureString("X").Y;
+            float lineHeight = smallFont.MeasureString("X").Y + 5;
 
             if (snapshots.Count == 0)
                 return;
@@ -172,15 +174,16 @@ namespace RobotNavigation
             foreach (string move in snapshots.Peek().pathDirections)
             {
                 string formattedMove = move + ", ";
-                lineWidth += smallFont.MeasureString(formattedMove).X + 20;
+
+                spriteBatch.DrawString(smallFont, formattedMove, start + new Vector2(lineWidth, 0), clr);
+
+                lineWidth += 60;
 
                 if (lineWidth > MAX_LINE_WIDTH)
                 {
                     start.Y += lineHeight;
                     lineWidth = 0;
                 }
-
-                spriteBatch.DrawString(smallFont, formattedMove, start + new Vector2(lineWidth, 0), clr);
             }
         }
     }

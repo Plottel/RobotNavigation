@@ -9,8 +9,6 @@ namespace RobotNavigation
     public interface ISearch
     {
         List<Node> Path { get; set; }
-
         Queue<SearchSnapshot> Search(NodeGrid grid);
-
     }
 }
