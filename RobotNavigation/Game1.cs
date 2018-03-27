@@ -18,6 +18,7 @@ namespace RobotNavigation
         NodeGrid grid;
         ISearch search;
         Queue<SearchSnapshot> snapshots = new Queue<SearchSnapshot>();
+        SpriteFont font;
 
 
         public Game1()
@@ -44,6 +45,7 @@ namespace RobotNavigation
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("font");
         }
 
         protected override void UnloadContent()
@@ -57,10 +59,13 @@ namespace RobotNavigation
 
             Input.UpdateStates();
 
+            if (Input.KeyTyped(Keys.D1))
+                search = new DepthFirstSearch();
+            if (Input.KeyTyped(Keys.D2))
+                search = new BreadthFirstSearch();
+
             if (Input.KeyTyped(Keys.Space))
-            {
                 snapshots = search.Search(grid);
-            }
 
             base.Update(gameTime);
         }
@@ -87,6 +92,8 @@ namespace RobotNavigation
                 spriteBatch.FillRectangle(grid.targetNode.Bounds, new Color(0, 255, 0));
 
                 RenderGrid();
+
+                RenderUI();
             }
             
 
@@ -97,14 +104,8 @@ namespace RobotNavigation
 
         public void Setup(string[] args)
         {
-            grid = GridParser.LoadGridFrom(args[0]);
-
-            string searchType = args[1].ToLower();
-
-            if (searchType == "dfs")
-                search = new DepthFirstSearch();
-            else if (searchType == "bfs")
-                search = new BreadthFirstSearch();
+            grid = GridParser.LoadGridFrom("RobotNav-test.txt");
+            search = new DepthFirstSearch();
         }        
 
         // Renders the nodes and then renders grid lines on top.
@@ -139,6 +140,21 @@ namespace RobotNavigation
 
                 spriteBatch.DrawLine(lineStart, lineEnd, Color.Black, 1);
             }            
+        }
+
+        private void RenderUI()
+        {
+            Color clr = Color.White;
+            var start = new Vector2(GridParser.MAX_GRID_WIDTH + 20, 20);
+
+            spriteBatch.DrawString(font, " --- Instructions --- ", start, clr);
+            spriteBatch.DrawString(font, "  Space - Run Search", start + new Vector2(0, 30), clr);
+            spriteBatch.DrawString(font, "  1 - Depth First Search", start + new Vector2(0, 60), clr);
+            spriteBatch.DrawString(font, "  2 - Breadth First Search", start + new Vector2(0, 90), clr);
+
+            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 150), clr);
+
+            spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 210), clr);
         }
     }
 }

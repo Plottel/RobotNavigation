@@ -11,8 +11,8 @@ namespace RobotNavigation
 {
     public static class GridParser
     {
-        private const int MAX_GRID_WIDTH = 800;
-        private const int MAX_GRID_HEIGHT = 700;
+        public const int MAX_GRID_WIDTH = 800;
+        public const int MAX_GRID_HEIGHT = 700;
 
         public static NodeGrid LoadGridFrom(string filePath)
         {
