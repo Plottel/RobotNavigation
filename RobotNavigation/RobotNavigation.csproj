@@ -41,6 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AStarSearch.cs" />
     <Compile Include="BreadthFirstSearch.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="Game1.cs" />

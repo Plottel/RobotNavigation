@@ -16,7 +16,7 @@ namespace RobotNavigation
             Path = new List<Node>();
         }
 
-        private struct NodeScore
+        public struct NodeScore
         {
             public float f;
             public float g;
@@ -60,10 +60,17 @@ namespace RobotNavigation
                         open.Add(neighbour);
                         parents[neighbour] = current;
 
-                        scores[neighbour].h = Vector2.Distance(
+                        // TODO: Stuff about revisiting node. Can't just go if !closed and !open. We can revisit.
+
+                        var newScore = new NodeScore();
+                        newScore.h = Vector2.Distance(
                             neighbour.Bounds.Center.ToVector2(),
                             grid.targetNode.Bounds.Center.ToVector2()
                             );
+                        newScore.g = SearchUtils.GetGScore(neighbour, parents, scores);
+                        newScore.f = newScore.g + newScore.h;
+
+                        scores[neighbour] = newScore;
                     }
                 }
             }

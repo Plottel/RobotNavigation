@@ -66,6 +66,8 @@ namespace RobotNavigation
                 search = new BreadthFirstSearch();
             if (Input.KeyTyped(Keys.D3))
                 search = new GreedyBestFirstSearch();
+            if (Input.KeyTyped(Keys.D4))
+                search = new AStarSearch();
 
             if (Input.KeyTyped(Keys.Space))
                 snapshots = search.Search(grid);
@@ -154,6 +156,7 @@ namespace RobotNavigation
             spriteBatch.DrawString(font, "  1 - Depth First Search", start + new Vector2(0, 60), clr);
             spriteBatch.DrawString(font, "  2 - Breadth First Search", start + new Vector2(0, 90), clr);
             spriteBatch.DrawString(font, "  3 - Greedy Best First Search", start + new Vector2(0, 120), clr);
+            spriteBatch.DrawString(font, "  4 - AStar Search", start + new Vector2(0, 150), clr);
 
             spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 180), clr);
 

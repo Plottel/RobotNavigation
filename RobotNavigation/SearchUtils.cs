@@ -9,6 +9,19 @@ namespace RobotNavigation
 {
     public static class SearchUtils
     {
+        public static float GetGScore(Node current, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
+        {
+            var path = RetracePath(current, parents);
+            path.Remove(current);
+
+            float score = 0;
+
+            foreach (var node in path)
+                score += scores[node].g;
+
+            return score;
+        }
+
         public static List<Node> RetracePath(Node current, Dictionary<Node, Node> parents)
         {
             // Retrace the path
