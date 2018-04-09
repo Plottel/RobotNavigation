@@ -9,6 +9,8 @@ namespace RobotNavigation
 {
     public static class SearchUtils
     {
+        public const int MIN_G_SCORE = 1;
+
         public static float GetGScore(Node current, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
         {
             var path = RetracePath(current, parents);
@@ -19,7 +21,20 @@ namespace RobotNavigation
             foreach (var node in path)
                 score += scores[node].g;
 
-            return score;
+            return score == 0 ? MIN_G_SCORE : score;
+        }
+
+        public static AStarSearch.NodeScore GetScore(Node current, Node target, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
+        {
+            var result = new AStarSearch.NodeScore();
+            result.g = GetGScore(current, parents, scores);
+            result.h = Vector2.Distance(
+                            current.Bounds.Center.ToVector2(),
+                            target.Bounds.Center.ToVector2()
+                            );
+            result.f = result.g;// + result.h;
+
+            return result;
         }
 
         public static List<Node> RetracePath(Node current, Dictionary<Node, Node> parents)
@@ -62,6 +77,28 @@ namespace RobotNavigation
             snapshot.closedIndexes = NodesToNodeIndexes(closed, grid);
             snapshot.pathIndexes = NodesToNodeIndexes(RetracePath(current, parents), grid);
             snapshot.pathDirections = PathIndexesToPathDirections(snapshot.pathIndexes);
+
+            return snapshot;
+        }
+
+        public static AStarSearchSnapshot MakeAStarSnapshot(NodeGrid grid,
+                                                            Node current,
+                                                            IEnumerable<Node> open,
+                                                            IEnumerable<Node> closed,
+                                                            Dictionary<Node, Node> parents,
+                                                            Dictionary<Node, AStarSearch.NodeScore> scores)
+        {
+            var snapshot = new AStarSearchSnapshot();
+            snapshot.grid = grid;
+            snapshot.openIndexes = NodesToNodeIndexes(open, grid);
+            snapshot.closedIndexes = NodesToNodeIndexes(closed, grid);
+            snapshot.pathIndexes = NodesToNodeIndexes(RetracePath(current, parents), grid);
+            snapshot.pathDirections = PathIndexesToPathDirections(snapshot.pathIndexes);
+
+            snapshot.scoreIndexes = new Dictionary<Point, AStarSearch.NodeScore>();
+            // Add scores
+            foreach (var nodeScoreMap in scores)
+                snapshot.scoreIndexes[grid.IndexOf(nodeScoreMap.Key)] = nodeScoreMap.Value;
 
             return snapshot;
         }

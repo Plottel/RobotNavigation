@@ -16,8 +16,6 @@ namespace RobotNavigation
         {
             using (var game = new Game1())
             {
-                game.Setup(args);
-                //game.Setup(args);
                 game.Run();
             }
         }

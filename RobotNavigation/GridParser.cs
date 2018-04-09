@@ -55,6 +55,23 @@ namespace RobotNavigation
             return new NodeGrid(new Vector2(5, 5), cols, rows, tileSize);
         }
 
+        public static NodeGrid CreateGridToFitScreen(int cols, int rows)
+        {
+            // Determine appropriate TileSize
+            int tileWidth = MAX_GRID_WIDTH / cols;
+            int tileHeight = MAX_GRID_HEIGHT / rows;
+
+            // Make TileSize square
+            int tileSize = Math.Min(tileWidth, tileHeight);
+
+            // Create Grid
+            var grid = new NodeGrid(new Vector2(5, 5), cols, rows, tileSize);
+            grid.startNode = grid[0, 0];
+            grid.targetNode = grid[grid.Cols - 1, grid.Rows - 1];
+
+            return grid;
+        }
+
         // Extracts the node index in format (col,row) and returns the node at that index
         private static Node ReadNode(string input, NodeGrid grid)
         {

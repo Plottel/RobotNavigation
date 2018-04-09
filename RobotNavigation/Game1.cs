@@ -17,12 +17,15 @@ namespace RobotNavigation
         SpriteBatch spriteBatch;
         NodeGrid grid;
         ISearch search;
-        Queue<SearchSnapshot> snapshots = new Queue<SearchSnapshot>();
-        SpriteFont font;
-        SpriteFont smallFont;
+        Queue<ISearchSnapshot> snapshots = new Queue<ISearchSnapshot>();
+        public SpriteFont font;
+        public SpriteFont smallFont;
+
+        public static Game1 Instance;
 
         public Game1()
         {
+            Instance = this;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
@@ -38,6 +41,9 @@ namespace RobotNavigation
         {
             IsMouseVisible = true;
             Mouse.WindowHandle = Window.Handle;
+
+            grid = GridParser.LoadGridFrom("RobotNav-test.txt");
+            search = new DepthFirstSearch();
 
             base.Initialize();
         }
@@ -68,11 +74,28 @@ namespace RobotNavigation
                 search = new GreedyBestFirstSearch();
             if (Input.KeyTyped(Keys.D4))
                 search = new AStarSearch();
+            if (Input.KeyTyped(Keys.N))
+                grid = GridParser.CreateGridToFitScreen(18, 18);
 
             if (Input.KeyTyped(Keys.Space))
                 snapshots = search.Search(grid);
 
+            HandleGridChangeInput();
+
             base.Update(gameTime);
+        }
+
+        private void HandleGridChangeInput()
+        {
+            var node = grid.NodeAt(Input.MousePos);
+            if (node == null) return;
+
+            if (Input.LeftMouseDown())
+                node.isWall = true;
+            if (Input.RightMouseDown())
+                node.isWall = false;
+
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -85,7 +108,7 @@ namespace RobotNavigation
                 if (snapshots.Count > 1)
                 {
                     snapshots.Dequeue().Render(spriteBatch);
-                    System.Threading.Thread.Sleep(200);
+                    System.Threading.Thread.Sleep(20);
                 }
                 else if (snapshots.Count == 1) // Leave the final snapshot visible on screen
                 {
@@ -105,13 +128,7 @@ namespace RobotNavigation
             spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-
-        public void Setup(string[] args)
-        {
-            grid = GridParser.LoadGridFrom("RobotNav-test.txt");
-            search = new DepthFirstSearch();
-        }        
+        }  
 
         // Renders the nodes and then renders grid lines on top.
         private void RenderGrid()
@@ -174,7 +191,7 @@ namespace RobotNavigation
             if (snapshots.Count == 0)
                 return;
 
-            foreach (string move in snapshots.Peek().pathDirections)
+            foreach (string move in snapshots.Peek().PathDirections)
             {
                 string formattedMove = move + ", ";
 

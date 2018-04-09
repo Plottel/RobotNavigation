@@ -23,9 +23,9 @@ namespace RobotNavigation
             public float h;
         }
 
-        public Queue<SearchSnapshot> Search(NodeGrid grid)
+        public Queue<ISearchSnapshot> Search(NodeGrid grid)
         {
-            var snapshots = new Queue<SearchSnapshot>();
+            var snapshots = new Queue<ISearchSnapshot>();
 
             var parents = new Dictionary<Node, Node>();
             var open = new List<Node>();
@@ -45,7 +45,7 @@ namespace RobotNavigation
                 open.RemoveAt(0);
 
                 // Create new SearchSnapshot
-                snapshots.Enqueue(SearchUtils.MakeSnapshot(grid, current, open, closed, parents));
+                snapshots.Enqueue(SearchUtils.MakeAStarSnapshot(grid, current, open, closed, parents, scores));
 
                 if (current == grid.targetNode)
                     break;
@@ -55,22 +55,31 @@ namespace RobotNavigation
 
                 foreach (var neighbour in current.neighbours)
                 {
-                    if (!closed.Contains(neighbour) && !open.Contains(neighbour) && !neighbour.isWall)
+                    if (neighbour.isWall || closed.Contains(neighbour))
+                        continue;
+
+                    // Node has been examined
+                    if (open.Contains(neighbour))
+                    {
+                        // If this will be a shorter path, update parent.
+
+                        // Temporarily change parent to check new score.
+                        var oldParent = parents[neighbour];
+                        parents[neighbour] = current;
+
+                        var newScore = SearchUtils.GetScore(neighbour, grid.targetNode, parents, scores);
+
+                        if (newScore.g < scores[neighbour].g)
+                            scores[neighbour] = newScore;
+                        else // New path was not shorter, reset original parent.
+                            parents[neighbour] = oldParent;
+
+                    }
+                    else // Node needs to be added to frontier
                     {
                         open.Add(neighbour);
                         parents[neighbour] = current;
-
-                        // TODO: Stuff about revisiting node. Can't just go if !closed and !open. We can revisit.
-
-                        var newScore = new NodeScore();
-                        newScore.h = Vector2.Distance(
-                            neighbour.Bounds.Center.ToVector2(),
-                            grid.targetNode.Bounds.Center.ToVector2()
-                            );
-                        newScore.g = SearchUtils.GetGScore(neighbour, parents, scores);
-                        newScore.f = newScore.g + newScore.h;
-
-                        scores[neighbour] = newScore;
+                        scores[neighbour] = SearchUtils.GetScore(neighbour, grid.targetNode, parents, scores);
                     }
                 }
             }

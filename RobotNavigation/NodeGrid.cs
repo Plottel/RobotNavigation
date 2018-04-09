@@ -67,6 +67,8 @@ namespace RobotNavigation
             return new Point(col, row);
         }
 
+        public Point IndexOf(Node node) => IndexAt(node.pos);
+
         public List<Node> GetSquareNeighbours(Node node)
         {
             var idx = IndexAt(node.pos);

@@ -16,9 +16,9 @@ namespace RobotNavigation
             Path = new List<Node>();
         }
 
-        public Queue<SearchSnapshot> Search(NodeGrid grid)
+        public Queue<ISearchSnapshot> Search(NodeGrid grid)
         {
-            var snapshots = new Queue<SearchSnapshot>();
+            var snapshots = new Queue<ISearchSnapshot>();
 
             var parents = new Dictionary<Node, Node>();
             var open = new List<Node>();

@@ -7,14 +7,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
+
 namespace RobotNavigation
 {
-    public struct SearchSnapshot : ISearchSnapshot
+    public struct AStarSearchSnapshot : ISearchSnapshot
     {
         public NodeGrid grid;
         public List<Point> openIndexes;
         public List<Point> closedIndexes;
         public List<Point> pathIndexes;
+        public Dictionary<Point, AStarSearch.NodeScore> scoreIndexes;
         public List<string> pathDirections;
 
         public List<string> PathDirections
@@ -55,6 +57,15 @@ namespace RobotNavigation
                                 grid[idx2.Col(), idx2.Row()].Bounds.Center.ToVector2(),
                                 Color.Green,
                                 2);
+
+            // Render scores
+            foreach (var idxScoreMap in scoreIndexes)
+            {
+                var node = grid[idxScoreMap.Key.Col(), idxScoreMap.Key.Row()];
+                var score = idxScoreMap.Value.f;
+
+                spriteBatch.DrawString(Game1.Instance.smallFont, score.ToString(), node.Bounds.Center.ToVector2(), Color.Black);
+            }
         }
     }
 }

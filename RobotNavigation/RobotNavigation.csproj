@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AStarSearch.cs" />
+    <Compile Include="AStarSearchSnapshot.cs" />
     <Compile Include="BreadthFirstSearch.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="Game1.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="GridParser.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="ISearch.cs" />
+    <Compile Include="ISearchSnapshot.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="NodeGrid.cs" />
     <Compile Include="PointExtensions.cs" />
