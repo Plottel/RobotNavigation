@@ -191,6 +191,9 @@ namespace RobotNavigation
             if (snapshots.Count == 0)
                 return;
 
+            spriteBatch.DrawString(font, "Path Length : " + snapshots.Peek().PathDirections.Count, start, clr);
+            start.Y += 25;
+
             foreach (string move in snapshots.Peek().PathDirections)
             {
                 string formattedMove = move + ", ";

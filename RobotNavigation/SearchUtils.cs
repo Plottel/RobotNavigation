@@ -21,7 +21,7 @@ namespace RobotNavigation
             foreach (var node in path)
                 score += scores[node].g;
 
-            return score == 0 ? MIN_G_SCORE : score;
+            return (score == 0 ? MIN_G_SCORE : score);
         }
 
         public static AStarSearch.NodeScore GetScore(Node current, Node target, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
@@ -32,7 +32,7 @@ namespace RobotNavigation
                             current.Bounds.Center.ToVector2(),
                             target.Bounds.Center.ToVector2()
                             );
-            result.f = result.g;// + result.h;
+            result.f = result.g + result.h;
 
             return result;
         }
