@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="AStarSearch.cs" />
     <Compile Include="AStarSearchSnapshot.cs" />
+    <Compile Include="BidirectionalSearch.cs" />
+    <Compile Include="BidirectionalSearchSnapshot.cs" />
     <Compile Include="BreadthFirstSearch.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="Game1.cs" />
