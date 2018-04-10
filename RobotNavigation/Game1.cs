@@ -201,9 +201,18 @@ namespace RobotNavigation
             {
                 string formattedMove = move + ", ";
 
+                if (move == "FRONT HALF" || move == "BACK HALF")
+                {
+                    start.Y += lineHeight * 2;
+                    lineWidth = 0;
+                }
+                else
+                    lineWidth += 60;
+
                 spriteBatch.DrawString(smallFont, formattedMove, start + new Vector2(lineWidth, 0), clr);
 
-                lineWidth += 60;
+                if (move == "FRONT HALF" || move == "BACK HALF")
+                    lineWidth = MAX_LINE_WIDTH + 1;
 
                 if (lineWidth > MAX_LINE_WIDTH)
                 {
