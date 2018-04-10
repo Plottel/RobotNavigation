@@ -13,6 +13,7 @@ namespace RobotNavigation
     {
         public SearchSnapshot frontSnapshot;
         public SearchSnapshot backSnapshot;
+        public bool isSearchFinished;
 
         public List<string> PathDirections
         {
@@ -33,9 +34,12 @@ namespace RobotNavigation
             frontSnapshot.Render(spriteBatch);
             backSnapshot.Render(spriteBatch);
 
+            if (!isSearchFinished)
+                return;
+
             // Draw final line connecting the two paths
             var grid = frontSnapshot.grid;
-            var idx1 = frontSnapshot.pathIndexes[frontSnapshot.pathIndexes.Count - 1];
+            var idx1 = frontSnapshot.pathIndexes[frontSnapshot.pathIndexes.Count - 2];
             var idx2 = backSnapshot.pathIndexes[backSnapshot.pathIndexes.Count - 1];
 
             spriteBatch.DrawLine(grid[idx1.Col(), idx1.Row()].Bounds.Center.ToVector2(),

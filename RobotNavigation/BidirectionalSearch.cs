@@ -43,6 +43,11 @@ namespace RobotNavigation
             // Return new snapshot.
             return SearchUtils.MakeSnapshot(grid, current, open, closed, parents);
         }
+
+        public SearchSnapshot MakeSnapshot()
+        {
+            return SearchUtils.MakeSnapshot(grid, current, open, closed, parents);
+        }
     }
 
     public class BidirectionalSearch : ISearch
@@ -53,6 +58,7 @@ namespace RobotNavigation
         public Queue<ISearchSnapshot> Search(NodeGrid grid)
         {
             var snapshots = new Queue<ISearchSnapshot>();
+            Node intersect = null;
 
             front = new BDSearchHalf(grid.startNode, grid);
             back = new BDSearchHalf(grid.targetNode, grid);
@@ -62,14 +68,42 @@ namespace RobotNavigation
                 snapshots.Enqueue(new BidirectionalSearchSnapshot
                 {
                     frontSnapshot = front.ExpandOneNode(),
-                    backSnapshot = back.ExpandOneNode()
-                });                
+                    backSnapshot = back.ExpandOneNode(),
+                    isSearchFinished = false
+                });
 
-                if (front.current == back.current)
+                intersect = GetIntersectingNode(front.open, back.open);
+                if (intersect != null)
                     break;
             }
 
+            // Link the two paths.
+            front.current = intersect;
+            back.current = intersect;
+
+            snapshots.Enqueue(new BidirectionalSearchSnapshot
+            {
+                frontSnapshot = front.MakeSnapshot(),
+                backSnapshot = back.MakeSnapshot(),
+                isSearchFinished = true
+            });
+
+
             return snapshots;
+        }
+
+        private Node GetIntersectingNode(Queue<Node> open1, Queue<Node> open2)
+        {
+            foreach (var n1 in open1)
+            {
+                foreach (var n2 in open2)
+                {
+                    if (n1 == n2)
+                        return n1;
+                }
+            }
+
+            return null;
         }
     }
 }
