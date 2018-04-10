@@ -15,7 +15,7 @@ namespace RobotNavigation
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        NodeGrid grid;
+        public NodeGrid grid;
         ISearch search;
         Queue<ISearchSnapshot> snapshots = new Queue<ISearchSnapshot>();
         public SpriteFont font;

@@ -21,18 +21,30 @@ namespace RobotNavigation
             foreach (var node in path)
                 score += scores[node].g;
 
-            return (score == 0 ? MIN_G_SCORE : score);
+            return score + MIN_G_SCORE;
         }
 
         public static AStarSearch.NodeScore GetScore(Node current, Node target, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
         {
             var result = new AStarSearch.NodeScore();
             result.g = GetGScore(current, parents, scores);
+
+            // Euclidian
+
             result.h = Vector2.Distance(
                             current.Bounds.Center.ToVector2(),
                             target.Bounds.Center.ToVector2()
                             );
-            result.f = result.g + result.h;
+
+            // Manhattan
+            //var curIdx = Game1.Instance.grid.IndexOf(current);
+            //var targetIdx = Game1.Instance.grid.IndexOf(target);
+            //int colOffset = Math.Abs(curIdx.Col() - targetIdx.Col());
+            //int rowOffset = Math.Abs(curIdx.Row() - targetIdx.Row());
+
+            //result.h = colOffset + rowOffset;
+
+            result.f = (result.g / 5) + result.h;
 
             return result;
         }
