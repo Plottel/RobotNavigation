@@ -91,10 +91,10 @@ namespace RobotNavigation
 
             var result = new List<Node>();
 
-            AddNodeIfNotNull(this[idx.Col() - 1, idx.Row()], result);       // West
-            AddNodeIfNotNull(this[idx.Col() + 1, idx.Row()], result);       // East
             AddNodeIfNotNull(this[idx.Col(), idx.Row() - 1], result);       // North
+            AddNodeIfNotNull(this[idx.Col() - 1, idx.Row()], result);       // West
             AddNodeIfNotNull(this[idx.Col(), idx.Row() + 1], result);       // South
+            AddNodeIfNotNull(this[idx.Col() + 1, idx.Row()], result);       // East           
 
             return result;
         }
