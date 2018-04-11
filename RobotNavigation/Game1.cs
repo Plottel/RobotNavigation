@@ -96,6 +96,10 @@ namespace RobotNavigation
                 node.isWall = true;
             if (Input.RightMouseDown())
                 node.isWall = false;
+            if (Input.KeyTyped(Keys.S))
+                grid.startNode = node;
+            if (Input.KeyTyped(Keys.T))
+                grid.targetNode = node;
 
 
         }
