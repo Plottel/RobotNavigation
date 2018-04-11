@@ -9,10 +9,12 @@ namespace RobotNavigation
 {
     public static class SearchUtils
     {
-        public const int MIN_G_SCORE = 1;
+        public const int MIN_G_SCORE = 2;
 
         public static float GetGScore(Node current, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
         {
+            return scores[parents[current]].g + MIN_G_SCORE;
+
             var path = RetracePath(current, parents);
             path.Remove(current);
 
@@ -31,20 +33,21 @@ namespace RobotNavigation
 
             // Euclidian
 
-            result.h = Vector2.Distance(
-                            current.Bounds.Center.ToVector2(),
-                            target.Bounds.Center.ToVector2()
-                            );
+            //result.h = Vector2.Distance(
+            //                current.Bounds.Center.ToVector2(),
+            //                target.Bounds.Center.ToVector2()
+            //                );
 
             // Manhattan
-            //var curIdx = Game1.Instance.grid.IndexOf(current);
-            //var targetIdx = Game1.Instance.grid.IndexOf(target);
-            //int colOffset = Math.Abs(curIdx.Col() - targetIdx.Col());
-            //int rowOffset = Math.Abs(curIdx.Row() - targetIdx.Row());
+            var curIdx = Game1.Instance.grid.IndexOf(current);
+            var targetIdx = Game1.Instance.grid.IndexOf(target);
+            int colOffset = Math.Abs(curIdx.Col() - targetIdx.Col());
+            int rowOffset = Math.Abs(curIdx.Row() - targetIdx.Row());
 
-            //result.h = colOffset + rowOffset;
+            result.h = colOffset + rowOffset;
+            result.h *= 0.9f;
 
-            result.f = (result.g / 5) + result.h;
+            result.f = result.g + result.h;
 
             return result;
         }
