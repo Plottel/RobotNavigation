@@ -11,12 +11,16 @@ namespace RobotNavigation
     public class JumpPointSearch : ISearch
     {
         private NodeGrid grid;
+        private Queue<ISearchSnapshot> snapshots;
+        private List<Node> open;
 
         public Queue<ISearchSnapshot> Search(NodeGrid grid)
         {
             this.grid = grid;
+            snapshots = new Queue<ISearchSnapshot>();
+
             var parents = new Dictionary<Node, Node>();
-            var open = new List<Node>();
+            open = new List<Node>();
             var closed = new List<Node>();
             var scores = new Dictionary<Node, NodeScore>();
 
@@ -55,9 +59,9 @@ namespace RobotNavigation
                         scores[neighbour] = SearchUtils.GetScore(neighbour, grid.targetNode, parents, scores);
                     }                    
                 }
-            } 
+            }
 
-            return new Queue<ISearchSnapshot>();
+            return snapshots;
         }
 
         private Node GetJumpPointForNeighbour(Node node, Node neighbour)
@@ -83,30 +87,74 @@ namespace RobotNavigation
 
         private Node GetJumpPointHorizontal(int col, int row, int dCol)
         {
-            Node jumpPoint = null;
+            Point startIdx = new Point(col, row);
 
-            while (true) // Each if statement will triggger a return, while true loop is fine.
+            while (true)
             {
-                if (grid[col + dCol, row].isWall)
-                    return jumpPoint; // End of projection, return current jumpPoint. 
+                AddCalculationSnapshot(startIdx, new Point(col, row));
 
-                if (!grid[col, row + 1].isWall && grid[col - dCol, row + 1].isWall)
-                {
-                    // End of projection, set this to jumpPoint and return;
-                }
+                if (grid[col + dCol, row] == null || grid[col + dCol, row].isWall)
+                    break;
 
-                if (!grid[col, row - 1].isWall && grid[col - dCol, row - 1].isWall)
-                {
-                    // End of projection, set this to jumpPoint and return;
-                }
+                var beNotWall = grid[col, row + 1];
+                var beWall = grid[col - dCol, row + 1];
+
+                if (beWall != null & beNotWall != null && beWall.isWall && !beNotWall.isWall)
+                    break;
+
+                beNotWall = grid[col, row - 1];
+                beWall = grid[col - dCol, row - 1];
+
+                if (beWall != null & beNotWall != null && beWall.isWall && !beNotWall.isWall)
+                    break;
 
                 col += dCol;
             }
+
+            return grid[col, row];
         }
 
         private Node GetJumpPointVertical(int col, int row, int dRow)
         {
+            Point startIdx = new Point(col, row);
 
+            while (true)
+            {
+                AddCalculationSnapshot(startIdx, new Point(col, row));
+
+                if (grid[col, row + dRow] == null || grid[col, row + dRow].isWall)
+                    break;
+
+                var beNotWall = grid[col + 1, row];
+                var beWall = grid[col + 1, row - dRow];
+
+                if (beWall != null & beNotWall != null && beWall.isWall && !beNotWall.isWall)
+                    break;
+
+                beNotWall = grid[col - 1, row];
+                beWall = grid[col - 1, row - dRow];
+
+                if (beWall != null & beNotWall != null && beWall.isWall && !beNotWall.isWall)
+                    break;
+
+                row += dRow;
+            }
+
+            return grid[col, row];
+        }
+
+        private void AddCalculationSnapshot(Point nodeIdx, Point jumpIdx)
+        {
+            snapshots.Enqueue
+            (
+                new JPSCalculationSnapshot
+                {
+                    startIdx = nodeIdx,
+                    jumpIdx = jumpIdx,
+                    grid = grid,
+                    openIndexes = SearchUtils.NodesToNodeIndexes(open, grid)
+                }
+            );
         }
     }
 }

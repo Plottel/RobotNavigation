@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace RobotNavigation
 {
@@ -31,6 +32,14 @@ namespace RobotNavigation
                 if (col < 0 || col > Cols - 1 || row < 0 || row > Rows - 1)
                     return;
                 _cells[col][row] = value;
+            }
+        }
+
+        public T this[Point idx]
+        {
+            get
+            {
+                return this[idx.Col(), idx.Row()];
             }
         }
 

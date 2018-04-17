@@ -76,6 +76,8 @@ namespace RobotNavigation
                 search = new AStarSearch();
             if (Input.KeyTyped(Keys.D5))
                 search = new BidirectionalSearch();
+            if (Input.KeyTyped(Keys.D6))
+                search = new JumpPointSearch();
             if (Input.KeyTyped(Keys.N))
             {
                 grid = GridParser.CreateGridToFitScreen(18, 18);
@@ -103,8 +105,6 @@ namespace RobotNavigation
                 grid.startNode = node;
             if (Input.KeyTyped(Keys.T))
                 grid.targetNode = node;
-
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -184,14 +184,15 @@ namespace RobotNavigation
             spriteBatch.DrawString(font, "  3 - Greedy Best First Search", start + new Vector2(0, 120), clr);
             spriteBatch.DrawString(font, "  4 - AStar Search", start + new Vector2(0, 150), clr);
             spriteBatch.DrawString(font, "  5 - Bidirectional Search", start + new Vector2(0, 180), clr);
-            spriteBatch.DrawString(font, "  N - Create a Blank Grid", start + new Vector2(0, 210), clr);
-            spriteBatch.DrawString(font, "  S - Change Start Node", start + new Vector2(0, 240), clr);
-            spriteBatch.DrawString(font, "  T - Change Target Node", start + new Vector2(0, 270), clr);
+            spriteBatch.DrawString(font, "  6 - Jump Point Search", start + new Vector2(0, 210), clr);
+            spriteBatch.DrawString(font, "  N - Create a Blank Grid", start + new Vector2(0, 240), clr);
+            spriteBatch.DrawString(font, "  S - Change Start Node", start + new Vector2(0, 270), clr);
+            spriteBatch.DrawString(font, "  T - Change Target Node", start + new Vector2(0, 300), clr);
 
-            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 300), clr);
+            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 330), clr);
 
-            spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0,330), clr);
-            RenderPathResults(start + new Vector2(0, 360), clr);
+            spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 360), clr);
+            RenderPathResults(start + new Vector2(0, 390), clr);
             
         }
 
