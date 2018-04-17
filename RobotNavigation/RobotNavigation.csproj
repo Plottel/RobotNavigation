@@ -54,8 +54,10 @@
     <Compile Include="Input.cs" />
     <Compile Include="ISearch.cs" />
     <Compile Include="ISearchSnapshot.cs" />
+    <Compile Include="JumpPointSearch.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="NodeGrid.cs" />
+    <Compile Include="NodeScore.cs" />
     <Compile Include="PointExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

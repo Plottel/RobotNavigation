@@ -16,7 +16,7 @@ namespace RobotNavigation
         public List<Point> openIndexes;
         public List<Point> closedIndexes;
         public List<Point> pathIndexes;
-        public Dictionary<Point, AStarSearch.NodeScore> scoreIndexes;
+        public Dictionary<Point, NodeScore> scoreIndexes;
         public List<string> pathDirections;
 
         public List<string> PathDirections

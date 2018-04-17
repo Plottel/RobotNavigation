@@ -9,26 +9,22 @@ namespace RobotNavigation
 {
     public static class SearchUtils
     {
-        public const int MIN_G_SCORE = 2;
+        public const int MIN_G_SCORE = 1;
 
-        public static float GetGScore(Node current, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
+        public static float GetGScore(Node current, Dictionary<Node, Node> parents, Dictionary<Node, NodeScore> scores)
         {
-            return scores[parents[current]].g + MIN_G_SCORE;
+            var parent = parents[current];
+            var curIdx = Game1.Instance.grid.IndexOf(current);
+            var parentIdx = Game1.Instance.grid.IndexOf(parent);
+            int colOffset = Math.Abs(curIdx.Col() - parentIdx.Col());
+            int rowOffset = Math.Abs(curIdx.Row() - parentIdx.Row());
 
-            var path = RetracePath(current, parents);
-            path.Remove(current);
-
-            float score = 0;
-
-            foreach (var node in path)
-                score += scores[node].g;
-
-            return score + MIN_G_SCORE;
+            return scores[parent].g + colOffset + rowOffset;
         }
 
-        public static AStarSearch.NodeScore GetScore(Node current, Node target, Dictionary<Node, Node> parents, Dictionary<Node, AStarSearch.NodeScore> scores)
+        public static NodeScore GetScore(Node current, Node target, Dictionary<Node, Node> parents, Dictionary<Node, NodeScore> scores)
         {
-            var result = new AStarSearch.NodeScore();
+            var result = new NodeScore();
             result.g = GetGScore(current, parents, scores);
 
             // Euclidian
@@ -45,7 +41,6 @@ namespace RobotNavigation
             int rowOffset = Math.Abs(curIdx.Row() - targetIdx.Row());
 
             result.h = colOffset + rowOffset;
-            result.h *= 0.9f;
 
             result.f = result.g + result.h;
 
@@ -101,7 +96,7 @@ namespace RobotNavigation
                                                             IEnumerable<Node> open,
                                                             IEnumerable<Node> closed,
                                                             Dictionary<Node, Node> parents,
-                                                            Dictionary<Node, AStarSearch.NodeScore> scores)
+                                                            Dictionary<Node, NodeScore> scores)
         {
             var snapshot = new AStarSearchSnapshot();
             snapshot.grid = grid;
@@ -110,7 +105,7 @@ namespace RobotNavigation
             snapshot.pathIndexes = NodesToNodeIndexes(RetracePath(current, parents), grid);
             snapshot.pathDirections = PathIndexesToPathDirections(snapshot.pathIndexes);
 
-            snapshot.scoreIndexes = new Dictionary<Point, AStarSearch.NodeScore>();
+            snapshot.scoreIndexes = new Dictionary<Point, NodeScore>();
             // Add scores
             foreach (var nodeScoreMap in scores)
                 snapshot.scoreIndexes[grid.IndexOf(nodeScoreMap.Key)] = nodeScoreMap.Value;
@@ -128,7 +123,7 @@ namespace RobotNavigation
             return result;
         }
 
-        private static string NodeIndexesToMoveDirection(Point from, Point to)
+        public static string NodeIndexesToMoveDirection(Point from, Point to)
         {
             // Only orthogonal movement allowed, don't need to worry about 8 directions
             if (from.Col() < to.Col())
