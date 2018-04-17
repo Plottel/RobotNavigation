@@ -8,6 +8,6 @@ namespace RobotNavigation
 {
     public interface ISearch
     {
-        Queue<ISearchSnapshot> Search(NodeGrid grid);
+        Stack<ISearchSnapshot> Search(NodeGrid grid);
     }
 }

@@ -5,6 +5,7 @@ using MonoGame.Extended;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RobotNavigation
 {
@@ -17,9 +18,11 @@ namespace RobotNavigation
         SpriteBatch spriteBatch;
         public NodeGrid grid;
         ISearch search;
-        Queue<ISearchSnapshot> snapshots = new Queue<ISearchSnapshot>();
+        Stack<ISearchSnapshot> currentSnapshots = new Stack<ISearchSnapshot>();
+        Stack<ISearchSnapshot> finishedSnapshots = new Stack<ISearchSnapshot>();
         public SpriteFont font;
         public SpriteFont smallFont;
+        bool autoPlay = false; 
 
         public static Game1 Instance;
 
@@ -81,11 +84,34 @@ namespace RobotNavigation
             if (Input.KeyTyped(Keys.N))
             {
                 grid = GridParser.CreateGridToFitScreen(18, 18);
-                snapshots.Clear();
+                currentSnapshots.Clear();
             }
 
             if (Input.KeyTyped(Keys.Space))
-                snapshots = search.Search(grid);
+            {
+                currentSnapshots = new Stack<ISearchSnapshot>(search.Search(grid));
+                finishedSnapshots.Clear();
+                grid.SetupNeighbours();
+                autoPlay = true;
+            }
+
+            if (Input.KeyTyped(Keys.Tab))
+                autoPlay = !autoPlay;
+
+            if (!autoPlay)
+            {
+                if (Input.KeyTyped(Keys.Left))
+                {
+                    if (finishedSnapshots.Count > 0)
+                        currentSnapshots.Push(finishedSnapshots.Pop());
+                }
+
+                if (Input.KeyTyped(Keys.Right))
+                {
+                    if (currentSnapshots.Count > 0)
+                        finishedSnapshots.Push(currentSnapshots.Pop());
+                }
+            }
 
             HandleGridChangeInput();
 
@@ -114,14 +140,26 @@ namespace RobotNavigation
             spriteBatch.Begin();
 
             {
-                if (snapshots.Count > 1)
+                if (autoPlay)
                 {
-                    snapshots.Dequeue().Render(spriteBatch);
-                    System.Threading.Thread.Sleep(20);
+                    if (currentSnapshots.Count > 1)
+                    {
+                        var snapshot = currentSnapshots.Pop();
+
+                        snapshot.Render(spriteBatch);
+                        finishedSnapshots.Push(snapshot);
+
+                        System.Threading.Thread.Sleep(20);
+                    }
                 }
-                else if (snapshots.Count == 1) // Leave the final snapshot visible on screen
+                else if (currentSnapshots.Count >= 1)
                 {
-                    snapshots.Peek().Render(spriteBatch);
+                    currentSnapshots.Peek().Render(spriteBatch);
+                }
+                
+                if (currentSnapshots.Count == 1) // Leave the final snapshot visible on screen
+                {
+                    currentSnapshots.Peek().Render(spriteBatch);
                 }
 
                 // Render Start and Target Nodes
@@ -179,20 +217,22 @@ namespace RobotNavigation
 
             spriteBatch.DrawString(font, " --- Instructions --- ", start, clr);
             spriteBatch.DrawString(font, "  Space - Run Search", start + new Vector2(0, 30), clr);
-            spriteBatch.DrawString(font, "  1 - Depth First Search", start + new Vector2(0, 60), clr);
-            spriteBatch.DrawString(font, "  2 - Breadth First Search", start + new Vector2(0, 90), clr);
-            spriteBatch.DrawString(font, "  3 - Greedy Best First Search", start + new Vector2(0, 120), clr);
-            spriteBatch.DrawString(font, "  4 - AStar Search", start + new Vector2(0, 150), clr);
-            spriteBatch.DrawString(font, "  5 - Bidirectional Search", start + new Vector2(0, 180), clr);
-            spriteBatch.DrawString(font, "  6 - Jump Point Search", start + new Vector2(0, 210), clr);
-            spriteBatch.DrawString(font, "  N - Create a Blank Grid", start + new Vector2(0, 240), clr);
-            spriteBatch.DrawString(font, "  S - Change Start Node", start + new Vector2(0, 270), clr);
-            spriteBatch.DrawString(font, "  T - Change Target Node", start + new Vector2(0, 300), clr);
+            spriteBatch.DrawString(font, "  Tab - Pause Search", start + new Vector2(0, 60), clr);
+            spriteBatch.DrawString(font, "  Left/Right - Step Through Search when Paused", start + new Vector2(0, 90), clr);
+            spriteBatch.DrawString(font, "  1 - Depth First Search", start + new Vector2(0, 120), clr);
+            spriteBatch.DrawString(font, "  2 - Breadth First Search", start + new Vector2(0, 150), clr);
+            spriteBatch.DrawString(font, "  3 - Greedy Best First Search", start + new Vector2(0, 180), clr);
+            spriteBatch.DrawString(font, "  4 - AStar Search", start + new Vector2(0, 210), clr);
+            spriteBatch.DrawString(font, "  5 - Bidirectional Search", start + new Vector2(0, 240), clr);
+            spriteBatch.DrawString(font, "  6 - Jump Point Search", start + new Vector2(0, 270), clr);
+            spriteBatch.DrawString(font, "  N - Create a Blank Grid", start + new Vector2(0, 300), clr);
+            spriteBatch.DrawString(font, "  S - Change Start Node", start + new Vector2(0, 330), clr);
+            spriteBatch.DrawString(font, "  T - Change Target Node", start + new Vector2(0, 360), clr);
 
-            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 330), clr);
+            spriteBatch.DrawString(font, "Current Search Type : " + search.GetType().Name, start + new Vector2(0, 390), clr);
 
-            spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 360), clr);
-            RenderPathResults(start + new Vector2(0, 390), clr);
+            spriteBatch.DrawString(font, " --- Search Results --- ", start + new Vector2(0, 420), clr);
+            RenderPathResults(start + new Vector2(0, 450), clr);
             
         }
 
@@ -202,13 +242,13 @@ namespace RobotNavigation
             float lineWidth = 0;
             float lineHeight = smallFont.MeasureString("X").Y + 5;
 
-            if (snapshots.Count == 0)
+            if (currentSnapshots.Count == 0)
                 return;
 
-            spriteBatch.DrawString(font, "Path Length : " + snapshots.Peek().PathDirections.Count, start, clr);
+            spriteBatch.DrawString(font, "Path Length : " + currentSnapshots.Peek().PathDirections.Count, start, clr);
             start.Y += 25;
 
-            foreach (string move in snapshots.Peek().PathDirections)
+            foreach (string move in currentSnapshots.Peek().PathDirections)
             {
                 string formattedMove = move + ", ";
 

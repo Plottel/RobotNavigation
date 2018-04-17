@@ -16,9 +16,9 @@ namespace RobotNavigation
             Path = new List<Node>();
         }
 
-        public Queue<ISearchSnapshot> Search(NodeGrid grid)
+        public Stack<ISearchSnapshot> Search(NodeGrid grid)
         {
-            var snapshots = new Queue<ISearchSnapshot>();
+            var snapshots = new Stack<ISearchSnapshot>();
 
             var parents = new Dictionary<Node, Node>();
             var open = new List<Node>();
@@ -37,7 +37,7 @@ namespace RobotNavigation
                 open.RemoveAt(0);
 
                 // Create new SearchSnapshot
-                snapshots.Enqueue(SearchUtils.MakeSnapshot(grid, current, open, closed, parents));
+                snapshots.Push(SearchUtils.MakeSnapshot(grid, current, open, closed, parents));
 
                 if (current == grid.targetNode)
                     break;

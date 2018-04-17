@@ -154,7 +154,7 @@ namespace RobotNavigation
             }
         }
 
-        private void SetupNeighbours()
+        public void SetupNeighbours()
         {
             foreach (var node in this)
                 node.neighbours = GetOrthogonalNeighbours(node);

@@ -11,13 +11,13 @@ namespace RobotNavigation
     public class JumpPointSearch : ISearch
     {
         private NodeGrid grid;
-        private Queue<ISearchSnapshot> snapshots;
+        private Stack<ISearchSnapshot> snapshots;
         private List<Node> open;
 
-        public Queue<ISearchSnapshot> Search(NodeGrid grid)
+        public Stack<ISearchSnapshot> Search(NodeGrid grid)
         {
             this.grid = grid;
-            snapshots = new Queue<ISearchSnapshot>();
+            snapshots = new Stack<ISearchSnapshot>();
 
             var parents = new Dictionary<Node, Node>();
             open = new List<Node>();
@@ -93,6 +93,9 @@ namespace RobotNavigation
             {
                 AddCalculationSnapshot(startIdx, new Point(col, row));
 
+                if (grid[col, row] == grid.targetNode)
+                    break;
+
                 if (grid[col + dCol, row] == null || grid[col + dCol, row].isWall)
                     break;
 
@@ -122,6 +125,9 @@ namespace RobotNavigation
             {
                 AddCalculationSnapshot(startIdx, new Point(col, row));
 
+                if (grid[col, row] == grid.targetNode)
+                    break;
+
                 if (grid[col, row + dRow] == null || grid[col, row + dRow].isWall)
                     break;
 
@@ -145,7 +151,7 @@ namespace RobotNavigation
 
         private void AddCalculationSnapshot(Point nodeIdx, Point jumpIdx)
         {
-            snapshots.Enqueue
+            snapshots.Push
             (
                 new JPSCalculationSnapshot
                 {

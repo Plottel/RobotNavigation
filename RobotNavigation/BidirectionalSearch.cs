@@ -55,9 +55,9 @@ namespace RobotNavigation
         public BDSearchHalf front;
         public BDSearchHalf back;
 
-        public Queue<ISearchSnapshot> Search(NodeGrid grid)
+        public Stack<ISearchSnapshot> Search(NodeGrid grid)
         {
-            var snapshots = new Queue<ISearchSnapshot>();
+            var snapshots = new Stack<ISearchSnapshot>();
             Node intersect = null;
 
             front = new BDSearchHalf(grid.startNode, grid);
@@ -65,7 +65,7 @@ namespace RobotNavigation
 
             while (front.open.Count > 0 || back.open.Count > 0)
             {
-                snapshots.Enqueue(new BidirectionalSearchSnapshot
+                snapshots.Push(new BidirectionalSearchSnapshot
                 {
                     frontSnapshot = front.ExpandOneNode(),
                     backSnapshot = back.ExpandOneNode(),
@@ -81,7 +81,7 @@ namespace RobotNavigation
             front.current = intersect;
             back.current = intersect;
 
-            snapshots.Enqueue(new BidirectionalSearchSnapshot
+            snapshots.Push(new BidirectionalSearchSnapshot
             {
                 frontSnapshot = front.MakeSnapshot(),
                 backSnapshot = back.MakeSnapshot(),
