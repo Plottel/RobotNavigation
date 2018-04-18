@@ -50,10 +50,7 @@ namespace RobotNavigation
 
                     if (neighbour.isWall | closed.Contains(neighbour))
                         continue;
-
-                    // Flesh this out properly with revisiting code.
-
-
+                    
                     var proposedJP = GetJumpPointForNeighbour(current, neighbour);
 
 

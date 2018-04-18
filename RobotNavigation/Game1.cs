@@ -245,7 +245,12 @@ namespace RobotNavigation
             if (currentSnapshots.Count == 0)
                 return;
 
-            spriteBatch.DrawString(font, "Path Length : " + currentSnapshots.Peek().PathDirections.Count, start, clr);
+            int pathLength = currentSnapshots.Peek().PathDirections.Count;
+
+            if (search is BidirectionalSearch)
+                pathLength -= 2; // Bidirectional adds two extra strings for "FRONT HALF" and "BACK HALF"
+
+            spriteBatch.DrawString(font, "Path Length : " + pathLength, start, clr);
             start.Y += 25;
 
             foreach (string move in currentSnapshots.Peek().PathDirections)
