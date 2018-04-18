@@ -52,13 +52,23 @@ namespace RobotNavigation
                         continue;
 
                     // Flesh this out properly with revisiting code.
+
+
                     var proposedJP = GetJumpPointForNeighbour(current, neighbour);
 
-                    if (parents.ContainsKey(current) && proposedJP == parents[current])
+
+                    if (parents.ContainsKey(current))
                     {
-                        current.neighbours.RemoveAt(i);  // Parenting back on itself, don't examine node to avoid infinite loop.
-                        continue;
-                    }
+                        // If proposed JP goes in same direction as back to current's parent, it's backtracking so skip it.
+                        string jpDir = SearchUtils.NodesToMoveDirection(neighbour, proposedJP, grid);
+                        string parentDir = SearchUtils.NodesToMoveDirection(neighbour, parents[current], grid);
+
+                        if (jpDir == parentDir)
+                        {
+                            current.neighbours.RemoveAt(i);  // Parenting back on itself, don't examine node to avoid infinite loop.
+                            continue;
+                        }
+                    }                    
 
                     current.neighbours[i] = proposedJP;
                     neighbour = current.neighbours[i]; // Update since may have been overwritten.

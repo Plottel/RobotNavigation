@@ -134,5 +134,10 @@ namespace RobotNavigation
                 return "DOWN";
             return "UP";
         }
+
+        public static string NodesToMoveDirection(Node from, Node to, NodeGrid grid)
+        {
+            return NodeIndexesToMoveDirection(grid.IndexOf(from), grid.IndexOf(to));
+        }
     }
 }
