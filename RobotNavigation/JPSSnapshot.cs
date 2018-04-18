@@ -21,7 +21,29 @@ namespace RobotNavigation
         {
             get
             {
-                return SearchUtils.PathIndexesToPathDirections(pathIndexes);
+                var result = new List<string>();
+
+                for (int i = 1; i < pathIndexes.Count; ++i)
+                {
+                    Point from = pathIndexes[i - 1];
+                    Point to = pathIndexes[i];
+                    int colDist = Math.Abs(from.Col() - to.Col());
+                    int rowDist = Math.Abs(from.Row() - to.Row());
+                    string dir = SearchUtils.NodeIndexesToMoveDirection(from, to);
+
+                    if (dir == "LEFT" || dir == "RIGHT")
+                    {
+                        for (int j = 0; j < colDist; j++)
+                            result.Add(dir);
+                    }
+                    else if (dir == "UP" || dir == "DOWN")
+                    {
+                        for (int j = 0; j < rowDist; j++)
+                            result.Add(dir);
+                    }
+                }
+
+                return result;
             }
         }
 
