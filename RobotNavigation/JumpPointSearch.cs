@@ -13,18 +13,21 @@ namespace RobotNavigation
         private NodeGrid grid;
         private Stack<ISearchSnapshot> snapshots;
         private List<Node> open;
+        private Node current;
+        private Dictionary<Node, Node> parents;
 
         public Stack<ISearchSnapshot> Search(NodeGrid grid)
         {
             this.grid = grid;
             snapshots = new Stack<ISearchSnapshot>();
 
-            var parents = new Dictionary<Node, Node>();
+            parents = new Dictionary<Node, Node>();
             open = new List<Node>();
             var closed = new List<Node>();
             var scores = new Dictionary<Node, NodeScore>();
 
-            Node current = null;
+            current = null;
+            bool foundTarget = false;
 
             open.Add(grid.startNode);
             scores[grid.startNode] = new NodeScore();
@@ -49,15 +52,39 @@ namespace RobotNavigation
                         continue;
 
                     // Flesh this out properly with revisiting code.
-                    current.neighbours[i] = GetJumpPointForNeighbour(current, neighbour);
+                    var proposedJP = GetJumpPointForNeighbour(current, neighbour);
+
+                    if (parents.ContainsKey(current) && proposedJP == parents[current])
+                    {
+                        current.neighbours.RemoveAt(i);  // Parenting back on itself, don't examine node to avoid infinite loop.
+                        continue;
+                    }
+
+                    current.neighbours[i] = proposedJP;
                     neighbour = current.neighbours[i]; // Update since may have been overwritten.
+
+                    if (proposedJP == grid.targetNode)
+                    {
+                        foundTarget = true;
+                        break;
+                    }
 
                     if (!open.Contains(neighbour))
                     {
                         open.Add(neighbour);
                         parents[neighbour] = current;
                         scores[neighbour] = SearchUtils.GetScore(neighbour, grid.targetNode, parents, scores);
+                        AddCalculationSnapshot(grid.IndexOf(current), grid.IndexOf(neighbour));
                     }                    
+                }
+
+                if (foundTarget)
+                {
+                    var oldCurrent = current;
+                    parents[grid.targetNode] = current;
+                    current = grid.targetNode;
+                    AddCalculationSnapshot(grid.IndexOf(oldCurrent), grid.IndexOf(current));
+                    break;
                 }
             }
 
@@ -153,12 +180,13 @@ namespace RobotNavigation
         {
             snapshots.Push
             (
-                new JPSCalculationSnapshot
+                new JPSSnapshot
                 {
                     startIdx = nodeIdx,
                     jumpIdx = jumpIdx,
                     grid = grid,
-                    openIndexes = SearchUtils.NodesToNodeIndexes(open, grid)
+                    openIndexes = SearchUtils.NodesToNodeIndexes(open, grid),
+                    pathIndexes = SearchUtils.NodesToNodeIndexes(SearchUtils.RetracePath(current, parents), grid)
                 }
             );
         }

@@ -54,7 +54,7 @@
     <Compile Include="Input.cs" />
     <Compile Include="ISearch.cs" />
     <Compile Include="ISearchSnapshot.cs" />
-    <Compile Include="JPSCalculationSnapshot.cs" />
+    <Compile Include="JPSSnapshot.cs" />
     <Compile Include="JumpPointSearch.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="NodeGrid.cs" />

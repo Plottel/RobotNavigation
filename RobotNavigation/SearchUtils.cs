@@ -113,7 +113,7 @@ namespace RobotNavigation
             return snapshot;
         }
 
-        private static List<string> PathIndexesToPathDirections(List<Point> pathIndexes)
+        public static List<string> PathIndexesToPathDirections(List<Point> pathIndexes)
         {
             var result = new List<string>();
 
