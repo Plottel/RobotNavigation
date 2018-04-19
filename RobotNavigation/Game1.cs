@@ -18,8 +18,10 @@ namespace RobotNavigation
         SpriteBatch spriteBatch;
         public NodeGrid grid;
         ISearch search;
+
         Stack<ISearchSnapshot> currentSnapshots = new Stack<ISearchSnapshot>();
         Stack<ISearchSnapshot> finishedSnapshots = new Stack<ISearchSnapshot>();
+
         public SpriteFont font;
         public SpriteFont smallFont;
         bool autoPlay = false; 
@@ -38,6 +40,42 @@ namespace RobotNavigation
             // Restrict mouse to stay within the window.
             Input.SetMaxMouseX(graphics.PreferredBackBufferWidth);
             Input.SetMaxMouseY(graphics.PreferredBackBufferHeight);
+        }
+
+        public void Setup(string[] args)
+        {
+            grid = GridParser.LoadGridFrom(args[0]);
+
+            string searchID = args[1];
+
+            if (searchID == "BFS")
+                search = new BreadthFirstSearch();
+            else if (searchID == "DFS")
+                search = new DepthFirstSearch();
+            else if (searchID == "GBFS")
+                search = new GreedyBestFirstSearch();
+            else if (searchID == "AS")
+                search = new AStarSearch();
+            else if (searchID == "BDS")
+                search = new BidirectionalSearch();
+            else if (searchID == "JPS")
+                search = new JumpPointSearch();
+
+            var finalSnapshot = search.Search(grid).First();
+
+            // Exact format from assignment description.
+            var fileName = args[0];
+            var method = searchID;
+            var numberOfNodes = finalSnapshot.PathDirections.Count;
+            var path = "";
+
+            foreach (var move in finalSnapshot.PathDirections)
+                path += move + "; ";
+
+            if (search is BidirectionalSearch)
+                numberOfNodes -= 2; // Node count determined from string list length. BDS Adds "FRONT HALF" and "BACK HALF" as two extras.
+
+            Console.WriteLine("{0} {1} {2} {3}", fileName, method, numberOfNodes, path);
         }
 
         protected override void Initialize()

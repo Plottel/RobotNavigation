@@ -14,10 +14,13 @@ namespace RobotNavigation
         [STAThread]
         static void Main(string[] args)
         {
-            using (var game = new Game1())
-            {
-                game.Run();
-            }
+            var game = new Game1();
+
+            if (args.Length == 2)
+                game.Setup(args);
+
+            game.Run();
+            game.Dispose();
         }
     }
 #endif
